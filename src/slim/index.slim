@@ -1,6 +1,14 @@
-== Slim::Template.new('./slim/partials/layout.slim').render
-  div data-component='Comments'
-    h1 Tity
-    .js-btn Click me
-    .js-delete Kill me
-    .js-click CLICKK 1
+doctype html
+html.no-js
+  head
+    / device settings
+    meta charset='utf-8'
+
+  body
+    div data-component='Comments'
+      h1 Tity
+      .js-btn Click me
+      .js-delete Kill me
+      .js-click CLICKK 1
+
+    script src='js/app.js'

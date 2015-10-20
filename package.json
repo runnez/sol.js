@@ -1,5 +1,5 @@
 {
-  "name": "jslessons",
+  "name": "MarvinComponent",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -17,11 +17,11 @@
   },
   "homepage": "https://github.com/runnez/component",
   "devDependencies": {
-    "babelify": "^6.3.0",
-    "browserify": "^11.2.0",
-    "gulp": "^3.9.0",
-    "gulp-connect": "^2.2.0",
-    "gulp-slim": "^0.3.0",
-    "source": "0.0.3"
+    "gulp": "*",
+    "gulp-browserify": "*",
+    "gulp-connect": "*",
+    "gulp-slim": "*",
+    "jquery-browserify": "*",
+    "source": "*"
   }
 }

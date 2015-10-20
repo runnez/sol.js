@@ -1,3 +1,0 @@
-@function getWidthDefCol($n, $col, $gutter) {
-  @return ($col + $gutter) * $n - $gutter;
-}

@@ -1,3 +1,4 @@
 *.html
 *.css
 *.coffee
+node_modules

@@ -1,0 +1,33 @@
+{
+  "name": "MarvinComponent",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/runnez/component.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/runnez/component/issues"
+  },
+  "homepage": "https://github.com/runnez/component",
+  "devDependencies": {
+    "gulp": "*",
+    "gulp-connect": "*",
+    "gulp-eslint": "^1.1.0",
+    "gulp-mocha": "^2.2.0",
+    "gulp-plumber": "^1.0.1",
+    "gulp-slim": "*",
+    "jquery": "^2.1.4",
+    "jquery-browserify": "*",
+    "jsdom": "^7.0.2",
+    "should": "^7.1.1",
+    "source": "*"
+  },
+  "dependencies": {}
+}

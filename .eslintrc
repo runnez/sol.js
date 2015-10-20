@@ -1,0 +1,15 @@
+extends: eslint:recommended
+
+env:
+  browser: true
+
+globals:
+  $: true
+  Component: true
+
+rules:
+  indent: [2, 2]
+  no-console: 0
+  no-unused-vars: 1
+  no-redeclare: [2, {"builtinGlobals": true}]
+  no-empty: 1

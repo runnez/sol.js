@@ -23,5 +23,8 @@
     "gulp-slim": "*",
     "jquery-browserify": "*",
     "source": "*"
+  },
+  "dependencies": {
+    "jquery": "^2.1.4"
   }
 }

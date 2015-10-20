@@ -1,4 +1,4 @@
-var $         = require('jquery-browserify');
+var $         = require('jquery');
 var Component = require('./libs/component');
 
 Component.define('Comments', {
@@ -6,14 +6,14 @@ Component.define('Comments', {
 
   events: {
     'click on .js-delete': function(e) {
-
+      console.log(e, 'delete');
     },
 
     'click on .js-btn': function(e) {
-
+      console.log(e, 'btn');
     },
 
-    'click': 'handler'
+    // 'click': 'handler'
   },
 
   handler: function() {

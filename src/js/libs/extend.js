@@ -2,7 +2,7 @@ module.exports = function(Parent, proto) {
   var F, key, value, _super, attributes = {};
 
   F = function() {
-    return Parent.call(this, arguments);
+    return Parent.apply(this, arguments);
   };
 
   _super = Parent.prototype;

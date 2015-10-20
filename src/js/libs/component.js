@@ -1,4 +1,4 @@
-var $      = require('jquery-browserify');
+var $      = require('jquery');
 var extend = require('./extend');
 
 module.exports = (function() {
@@ -39,7 +39,7 @@ module.exports = (function() {
       }
 
       event.$block.on(event.name, event.selector, function(e) {
-        callback.apply(_self, $.merge([$(this)], arguments));
+        callback.apply(_self, arguments);
       });
     });
   };
@@ -64,8 +64,8 @@ module.exports = (function() {
    * vitalize
    * --------------------------------------------------------- */
 
-  function vitalize($el) {
-    $($el || document).find('[data-component]:not([data-ready])').each(function() {
+  function vitalize() {
+    $(document).find('[data-component]:not([data-ready])').each(function() {
       $el          = $(this);
       elComponents = $el.data('component').split(' ')
 

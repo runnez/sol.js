@@ -2,7 +2,7 @@ var gulp = require('gulp');
 var browserify = require('browserify');
 var babelify = require('babelify');
 var connect = require('gulp-connect');
-
+var slim = require("gulp-slim");
 
 gulp.task('html', function () {
   gulp.src('slim/*.html')
@@ -31,9 +31,17 @@ gulp.task('connect', function() {
   connect.server();
 });
 
+gulp.task('slim', function(){
+  gulp.src("slim/*.slim")
+    .pipe(slim({
+      pretty: false
+    }))
+    .pipe(gulp.dest("./"));
+});
+
 gulp.task('watch', function() {
   gulp.watch('app/assets/javascripts/**', ['js']);
-  gulp.watch(['./app/*.html'], ['html']);
+  gulp.watch(['./slim/*.slim'], ['slim']);
   //gulp.watch(paths.images, ['images']);
 });
 

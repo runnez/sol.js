@@ -1,0 +1,15 @@
+doctype html
+html.no-js
+  head
+    / device settings
+    meta charset='utf-8'
+
+    link href='css/main.css' rel='stylesheet'
+  body
+    .wrapper
+      .main
+        == yield
+
+    script src='http://code.jquery.com/jquery-2.1.4.min.js'
+    script src='js/object.assign.js'
+    script src='js/component.js'

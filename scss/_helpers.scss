@@ -1,0 +1,129 @@
+/* BASE */
+.hidden {
+  display: none;
+}
+
+.hidden-with-js {
+  display: none;
+
+  .no-js & {
+    display: block;
+  }
+}
+
+.invisible {
+  visibility: hidden;
+}
+
+.invisible-with-js {
+  visibility: hidden;
+
+  .no-js & {
+    visibility: visible;
+  }
+}
+
+.disable-hover,
+.disable-hover * {
+  pointer-events: none !important;
+}
+
+.block {
+  position: relative;
+
+  &:after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    content: "";
+  }
+}
+
+.hidden-control {
+  position: absolute;
+  z-index: -1;
+  opacity: 0;
+  margin: 0px;
+  padding: 0px;
+  visibility: hidden;
+}
+
+/* FORMS */
+.input-file-ghost {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+
+  input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    font-size: 999px;
+    text-align: right;
+    opacity: 0;
+    background: transparent;
+    cursor: inherit;
+    display: block;
+  }
+}
+
+/* LAYOUT */
+.margin-module *:last-child {
+  margin-bottom: 0;
+}
+
+.allign {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: table;
+  height: 100%;
+  width: 100%;
+}
+
+.allign_cell {
+  display: table-cell;
+  width: 100%;
+  height: 100%;
+  vertical-align: middle;
+}
+
+.allign__top-left,
+.allign__center-left,
+.allign__bottom-left {
+  text-align: left;
+}
+
+.allign__top-center,
+.allign__center-center,
+.allign__bottom-center {
+  text-align: center;
+}
+
+.allign__top-right,
+.allign__center-right,
+.allign__bottom-right {
+  text-align: right;
+}
+
+.allign__top-left,
+.allign__top-center,
+.allign__top-right {
+  vertical-align: top;
+}
+
+.allign__center-left,
+.allign__center-center,
+.allign__center-right {
+  vertical-align: middle;
+}
+
+.allign__bottom-left,
+.allign__bottom-center,
+.allign__bottom-right {
+  vertical-align: bottom;
+}

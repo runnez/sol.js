@@ -1,0 +1,3 @@
+@function getWidthCol($n, $col, $gutter) {
+  @return ($col + $gutter) * $n - $gutter;
+}

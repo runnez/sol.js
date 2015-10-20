@@ -1,3 +1,10 @@
+/*
+
+state inited
+attributes
+
+*/
+
 (function() {
   var components = {};
 
@@ -108,7 +115,6 @@
   });
 
   this.defineComponent = defineComponent;
-
 }).call(this);
 
 
@@ -141,10 +147,16 @@ evil.block 'Comments', BaseComments,
     'click on commentLke': 'incrementCommentLikeCounter'
  */
 
-defineComponent('Comments', {
+$.fn.attachComponent = function() {
+
+}
+
+//$('body').attachComponent();
+//$('body').attachComponent('Comments');
+
+defineComponent('Comments', 'BaseComments', {
   events: {
     'click on .js-delete': function(e) {
-      console.log(e);
     },
 
     'click on .js-btn': function() {

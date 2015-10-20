@@ -48,7 +48,7 @@ attributes
   function extend(Parent, proto) {
     var F, key, value, _super, attributes = {};
 
-    F = function(arguments) {
+    F = function() {
       return Parent.call(this, arguments);
     };
 

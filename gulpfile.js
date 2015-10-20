@@ -3,45 +3,39 @@ var browserify = require('browserify');
 var babelify = require('babelify');
 var connect = require('gulp-connect');
 var slim = require("gulp-slim");
-
-gulp.task('html', function () {
-  gulp.src('slim/*.html')
-    .pipe(connect.reload());
-});
+var source = require("source");
 
 gulp.task('js', function () {
   browserify({
-    entries: 'app/assets/javascripts/application.jsx',
+    entries: './component.js',
     debug: true
   })
   .transform(babelify)
   .bundle()
-  .pipe(source('bundle.js'))
-  .pipe(gulp.dest('public'));
+  .pipe(source('component.js.js'))
+  .pipe(gulp.dest('./example/'))
 });
 
 gulp.task('connect', function() {
   connect.server({
-    root: 'tmp',
+    root: 'example',
     livereload: true
   });
 });
 
-gulp.task('connect', function() {
-  connect.server();
-});
-
 gulp.task('slim', function(){
-  gulp.src("slim/*.slim")
+  gulp.src("src/slim/*.slim")
     .pipe(slim({
       pretty: false
     }))
-    .pipe(gulp.dest("./"));
+    .pipe(gulp.dest("./example/"))
+    .pipe(connect.reload());
 });
 
 gulp.task('watch', function() {
-  gulp.watch('app/assets/javascripts/**', ['js']);
-  gulp.watch(['./slim/*.slim'], ['slim']);
+  gulp.run('js')
+  gulp.watch('component.js', ['js']);
+  gulp.watch(['./src/slim/*.slim'], ['slim']);
   //gulp.watch(paths.images, ['images']);
 });
 

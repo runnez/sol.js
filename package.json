@@ -20,6 +20,7 @@
     "gulp": "*",
     "gulp-browserify": "*",
     "gulp-connect": "*",
+    "gulp-plumber": "^1.0.1",
     "gulp-slim": "*",
     "jquery-browserify": "*",
     "source": "*"

@@ -2,10 +2,12 @@ var gulp       = require('gulp');
 var browserify = require('gulp-browserify');
 var connect    = require('gulp-connect');
 var slim       = require('gulp-slim');
+var plumber    = require('gulp-plumber');
 var source     = require('source');
 
 gulp.task('js', function() {
   gulp.src('src/js/app.js')
+    .pipe(plumber({ errorHandler: console.log }))
     .pipe(browserify({
       debug: true,
       // require : { jquery : 'jquery-browserify' }
@@ -23,6 +25,7 @@ gulp.task('connect', function() {
 
 gulp.task('slim', function() {
   gulp.src('src/slim/*.slim')
+    .pipe(plumber({ errorHandler: console.log }))
     .pipe(slim({
       pretty: false
     }))

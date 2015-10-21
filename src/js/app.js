@@ -13,7 +13,9 @@ Component.define('Comments', {
       console.log(e, 'btn');
     },
 
-    'click': 'handlerClick'
+    // 'click': 'handlerClick',
+
+    'click on window': 'handlerClick'
   },
 
   handlerClick: function(e) {

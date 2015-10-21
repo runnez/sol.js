@@ -18,10 +18,20 @@ module.exports = (function() {
     $.extend(this, superProto, attributes);
   };
 
+  function _destroyed() {
+    _unbindEvents.call(this, this.$block, this.events);
+    this.destroyed();
+  }
+
+  function _unbindEvents($block, events) {
+
+  }
+
   function _bindEvents($block, events) {
     _self = this;
 
     $.each(events, function(key, callback) {
+      var event;
       key = key.split(' on ');
 
       // if (key[1] && match = key[1].match(/^(window|document)(\:delegate\((.+)\))*$/)) {
@@ -32,16 +42,23 @@ module.exports = (function() {
       //   event = { $block: $block, selector: (match[3] || null), name: key[0] }
       //
       // } else
-      if (key.length) {
+
+      if (key[1] && key[1] == 'window') {
+
+      } else if (key.length) {
         event = { $block: $block, selector: key[1], name: key[0] }
       } else {
         event = { $block: $block, selector: null, name: key }
       }
 
-      event.$block.on(event.name, event.selector, function(e) {
-        callback.apply(_self, arguments);
-      });
+      if (typeof callback !== 'function') {
+        callback = _self[callback];
+      }
+
+      event.$block.on(event.name, event.selector, callback.bind(_self));
     });
+
+    $block.on('destroyed', _destroyed.bind(_self));
   };
 
   /* ---------------------------------------------------------

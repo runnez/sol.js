@@ -25,7 +25,7 @@ module.exports = (function() {
 
   function _unbindEvents($block, events) {
     $.each(events, function(key, callback) {
-      var event = _parseEvent.call(_self, $block, key, callback);
+      var event = _parseEvent.call(this, $block, key, callback);
       event.$block.off(event.name, event.selector, event.callback);
     }.bind(this));
 
@@ -34,11 +34,11 @@ module.exports = (function() {
 
   function _bindEvents($block, events) {
     $.each(events, function(key, callback) {
-      var event = _parseEvent.call(_self, $block, key, callback);
+      var event = _parseEvent.call(this, $block, key, callback);
       event.$block.on(event.name, event.selector, event.callback);
     }.bind(this));
 
-    $block.on('destroyed', _destroyed.bind(_self));
+    $block.on('destroyed', _destroyed.bind(this));
   };
 
   function _parseEvent($block, key, callback) {
@@ -53,9 +53,9 @@ module.exports = (function() {
     }
 
     if (typeof callback !== 'function') {
-      event.callback = _self[callback];
+      event.callback = this[callback];
     } else {
-      event.callback = callback.bind(_self);
+      event.callback = callback.bind(this);
     }
 
     return event;

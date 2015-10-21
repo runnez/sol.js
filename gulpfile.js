@@ -11,6 +11,7 @@ gulp.task('js', function() {
       // require : { jquery : 'jquery-browserify' }
     }))
     .pipe(gulp.dest('dest/js'))
+    .pipe(connect.reload());
 });
 
 gulp.task('connect', function() {

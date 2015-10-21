@@ -13,10 +13,12 @@ Component.define('Comments', {
       console.log(e, 'btn');
     },
 
-    // 'click': 'handler'
+    // 'click': 'handlerClick',
+
+    'click on window': 'handlerClick'
   },
 
-  handler: function() {
+  handlerClick: function(e) {
     alert('1');
   },
 

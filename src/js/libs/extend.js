@@ -9,14 +9,6 @@ module.exports = function(Parent, proto) {
 
   _super = $.extend(true, {}, Parent.prototype);
 
-  if (_super._superProto) {
-    _super._superProto = $.extend({}, _super._superProto);
-  } else {
-    _super._superProto = proto;
-  }
-
-  _super._superAttrs = attributes;
-
   F.prototype = Object.create(_super);
   F.prototype.constructor = Parent;
 
@@ -36,6 +28,13 @@ module.exports = function(Parent, proto) {
     } else {
       attributes[key] = value;
     }
+  }
+
+  if (_super._superAttrs) {
+    console.log($.extend({}, _super._superAttrs, attributes));
+    _super._superAttrs = $.extend(true, {}, _super._superAttrs, attributes);
+  } else {
+    _super._superAttrs = attributes;
   }
 
   return F;

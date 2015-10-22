@@ -24,9 +24,11 @@ $.cleanData = ( function( orig ) {
 module.exports = (function() {
   var components = {};
 
+  var defaults = {};
+
   function Base($block, attributes) {
     this.$block = $block;
-    this.defaults = this.defaults || {};
+    this.defaults = this.defaults || defaults;
     this.options = $.extend(true, {}, this.defaults, attributes.defaults);
     _setAttributes.call(this, attributes);
     _bindEvents.call(this);
@@ -34,30 +36,31 @@ module.exports = (function() {
   }
 
   $.extend(true, Base.prototype, {
-    init: function() {},
+    init: function() {
 
-    $: function(selector) {
-      this.$block.find(selector);
+    },
+
+    el: function(name) {
+      this.$('.js-' + this.name + name);
     },
 
     trigger: function(name, data) {
       $(document).trigger(name, data);
     },
 
-    destroy: function() {
+    $: function(selector) {
+      this.$block.find(selector);
+    },
 
+    remove: function() {
+      this.$block.remove();
     }
   });
 
   function _setAttributes(attributes) {
-    console.log(this._superAttrs);
+    console.log('setAttributes', this._superAttrs);
     $.extend(true, this, this._superAttrs, attributes);
   };
-
-  function _destroy() {
-    _unbindEvents.call(this, this.$block, this.events);
-    this.destroy();
-  }
 
   function _bindEvents($block, events) {
     var $block = this.$block,

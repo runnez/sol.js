@@ -7,7 +7,7 @@ module.exports = function(Parent, proto) {
     return Parent.apply(this, arguments);
   };
 
-  _super = Parent.prototype;
+  _super = $.extend(true, {}, Parent.prototype);
 
   if (_super._superProto) {
     _super._superProto = $.extend({}, _super._superProto);

@@ -28,7 +28,7 @@ module.exports = (function() {
     this.$block = $block;
     this.defaults = this.defaults || {};
     this.options = $.extend(true, {}, this.defaults, attributes.defaults);
-    _setAttributes.call(this, this._superAttrs, attributes);
+    _setAttributes.call(this, attributes);
     _bindEvents.call(this);
     this.init();
   }
@@ -41,8 +41,9 @@ module.exports = (function() {
     destroy: function() {}
   });
 
-  function _setAttributes(superProto, attributes) {
-    $.extend(this, superProto, attributes);
+  function _setAttributes(attributes) {
+    console.log(this._superAttrs);
+    $.extend(true, this, this._superAttrs, attributes);
   };
 
   function _destroy() {
@@ -62,6 +63,12 @@ module.exports = (function() {
       var callback = events[key];
       var event = _parseEvent.call(this, $block, key, callback);
       event.target.on(event.name, event.selector, event.callback.bind(this));
+
+      if (event.target[0] == window) {
+        this.$block.on('remove', function() {
+          alert(1);
+        })
+      }
     }
   };
 

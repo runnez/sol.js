@@ -13,7 +13,8 @@ Component.define('Comments', {
 
   events: {
     'click on .js-delete': function(e) {
-      console.log(this);
+      this.$block.remove();
+      console.log(this.$block);
     },
 
     'click on .js-btn': function(e) {
@@ -45,9 +46,7 @@ Component.define('Comments', {
 
 Component.define('NewComments', 'Comments', {
   events: {
-    'click on window': function() {
-      alert(1111);
-    }
+    'click on window': function() {}
   },
 
   init: function() {

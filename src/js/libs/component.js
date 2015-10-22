@@ -35,10 +35,18 @@ module.exports = (function() {
 
   $.extend(true, Base.prototype, {
     init: function() {},
-    send: function(name, data) {
+
+    $: function(selector) {
+      this.$block.find(selector);
+    },
+
+    trigger: function(name, data) {
       $(document).trigger(name, data);
     },
-    destroy: function() {}
+
+    destroy: function() {
+
+    }
   });
 
   function _setAttributes(attributes) {
@@ -62,10 +70,16 @@ module.exports = (function() {
       e.target.on(e.name, e.selector, callback);
 
       if (e.target[0] == window) {
-        this.$block.on('remove', function() {
-          console.log(e.target, e.name, callback);
-          e.target.off(e.name, callback);
-        })
+        var name = e.name;
+
+        var removeCallback = (function(name, callback) {
+          return function() {
+            console.log(callback);
+            e.target.off(name, callback);
+          }
+        }(name, callback));
+
+        this.$block.on('remove', removeCallback);
       }
     }
   };

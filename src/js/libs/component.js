@@ -74,7 +74,7 @@ module.exports = (function() {
 
         var removeCallback = (function(name, callback) {
           return function() {
-            console.log(callback);
+            console.log('unbind event', name);
             e.target.off(name, callback);
           }
         }(name, callback));
@@ -138,6 +138,8 @@ module.exports = (function() {
 
         new components[elComponents[i]]($el, $el.data('options') || {});
       }
+
+      $el.attr('data-ready', true)
     });
   };
 

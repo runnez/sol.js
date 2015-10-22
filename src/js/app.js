@@ -21,7 +21,7 @@ Component.define('Comments', {
   },
 
   handlerClick: function(e) {
-    console.log('window');
+    console.log(this);
   },
 
   init: function() {

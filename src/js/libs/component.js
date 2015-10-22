@@ -43,14 +43,14 @@ module.exports = (function() {
   }
 
   function _unbindEvents($block, events) {
-    $block.off('destroy');
+
   }
 
   function _bindEvents($block, events) {
     for (var key in events) {
       var callback = events[key];
       var event = _parseEvent.call(this, $block, key, callback);
-      event.target.on(event.name, event.selector, event.callback);
+      event.target.on(event.name, event.selector, event.callback.bind(this));
     }
   };
 
@@ -68,7 +68,7 @@ module.exports = (function() {
     if (typeof callback !== 'function') {
       event.callback = this[callback];
     } else {
-      event.callback = callback.bind(this);
+      event.callback = callback;
     }
 
     return event;

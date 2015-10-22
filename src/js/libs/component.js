@@ -51,22 +51,20 @@ module.exports = (function() {
     this.destroy();
   }
 
-  function _unbindEvents($block, events) {
-
-  }
-
   function _bindEvents($block, events) {
     var $block = this.$block,
         events = this.events;
 
     for (var key in events) {
       var callback = events[key];
-      var event = _parseEvent.call(this, $block, key, callback);
-      event.target.on(event.name, event.selector, event.callback.bind(this));
+      var e = _parseEvent.call(this, $block, key, callback);
+      callback = e.callback.bind(this);
+      e.target.on(e.name, e.selector, callback);
 
-      if (event.target[0] == window) {
+      if (e.target[0] == window) {
         this.$block.on('remove', function() {
-          alert(1);
+          console.log(e.target, e.name, callback);
+          e.target.off(e.name, callback);
         })
       }
     }

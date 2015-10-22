@@ -21,13 +21,10 @@ Component.define('Comments', {
       console.log(e, 'btn', this);
     },
 
-    click: function() {
-    },
-
     'resize on window': 'handlerClick',
 
-    'remove': function() {
-      console.log('remove');
+    'click on window': function() {
+      console.log('1');
     }
   },
 
@@ -46,11 +43,9 @@ Component.define('Comments', {
 
 Component.define('NewComments', 'Comments', {
   events: {
-    'click on window': function() {}
   },
 
   init: function() {
-    this._super();
     console.log('NewComments is inited');
   }
 });

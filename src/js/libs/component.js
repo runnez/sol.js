@@ -28,7 +28,7 @@ module.exports = (function() {
     this.$block = $block;
     this.defaults = this.defaults || {};
     this.options = $.extend(true, {}, this.defaults, attributes.defaults);
-    _setAttributes.call(this, this._superProto, attributes);
+    _setAttributes.call(this, this._superAttrs, attributes);
     _bindEvents.call(this);
     this.init();
   }

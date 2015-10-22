@@ -15,6 +15,8 @@ module.exports = function(Parent, proto) {
     _super._superProto = proto;
   }
 
+  _super._superAttrs = attributes;
+
   F.prototype = Object.create(_super);
   F.prototype.constructor = Parent;
 

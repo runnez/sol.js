@@ -1,6 +1,13 @@
 var $         = require('jquery');
 var Component = require('./libs/component');
 
+/*
+  modules:
+    render:
+    models:
+    mvvm:
+*/
+
 Component.define('Comments', {
   ajax: true,
 
@@ -13,7 +20,10 @@ Component.define('Comments', {
       console.log(e, 'btn', this);
     },
 
-    'click on window': 'handlerClick',
+    click: function() {
+    },
+
+    'resize on window': 'handlerClick',
 
     'remove': function() {
       console.log('remove');
@@ -21,7 +31,7 @@ Component.define('Comments', {
   },
 
   handlerClick: function(e) {
-    console.log(this);
+    console.log(e);
   },
 
   init: function() {

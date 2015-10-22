@@ -20,18 +20,26 @@ $.cleanData = ( function( orig ) {
   };
 } )( $.cleanData );
 
+
 module.exports = (function() {
   var components = {};
 
   function Base($block, attributes) {
     this.$block = $block;
-    this.init();
+    this.defaults = this.defaults || {};
+    this.options = $.extend(true, {}, this.defaults, attributes.defaults);
     _setAttributes.call(this, this._superProto, attributes);
-    _bindEvents.call(this, this.$block, this.events);
+    _bindEvents.call(this);
+    this.init();
   }
 
-  Base.prototype.init = function() {};
-  Base.prototype.destroy = function() {};
+  $.extend(true, Base.prototype, {
+    init: function() {},
+    send: function(name, data) {
+      $(document).trigger(name, data);
+    },
+    destroy: function() {}
+  });
 
   function _setAttributes(superProto, attributes) {
     $.extend(this, superProto, attributes);
@@ -47,6 +55,9 @@ module.exports = (function() {
   }
 
   function _bindEvents($block, events) {
+    var $block = this.$block,
+        events = this.events;
+
     for (var key in events) {
       var callback = events[key];
       var event = _parseEvent.call(this, $block, key, callback);

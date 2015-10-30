@@ -10,7 +10,6 @@ gulp.task('js', function() {
     .pipe(plumber({ errorHandler: console.log }))
     .pipe(browserify({
       debug: true,
-      // require : { jquery : 'jquery-browserify' }
     }))
     .pipe(gulp.dest('dest/js'))
     .pipe(connect.reload());

@@ -1,30 +1,82 @@
-var $      = require('jquery');
-var extend = require('./extend');
+Marvin           = {};
+Marvin.Component = (function() {
 
-$.cleanData = ( function( orig ) {
-  return function( elems ) {
-    var events, elem, i;
-    for ( i = 0; ( elem = elems[ i ] ) != null; i++ ) {
-      try {
+  /* ---------------------------------------------------------
+   * Extend
+   * --------------------------------------------------------- */
 
-        // Only trigger remove when necessary to save time
-        events = $._data( elem, "events" );
-        if ( events && events.remove ) {
-          $( elem ).triggerHandler( "remove" );
-        }
+  var extend = function(Parent, proto) {
+    var F, key, value, _super, attributes = {};
 
-      // Http://bugs.jquery.com/ticket/8235
-      } catch ( e ) {}
+    F = function() {
+      return Parent.apply(this, arguments);
+    };
+
+    _super = $.extend(true, {}, Parent.prototype);
+
+    F.prototype = Object.create(_super);
+    F.prototype.constructor = Parent;
+
+    for (key in proto) {
+      value = proto[key];
+
+      if (typeof value === 'function') {
+        F.prototype[key] = _super[key] ? (function(key, value) {
+          return function() {
+            var args    = arguments;
+            this._super = function() {
+              return _super[key].apply(this, args);
+            }
+            var result  = value.apply(this, args);
+            delete this._super;
+            return result;
+          };
+        })(key, value) : value;
+      } else {
+        attributes[key] = value;
+      }
     }
-    orig( elems );
-  };
-} )( $.cleanData );
 
-module.exports = (function() {
+    if (_super._superAttrs) {
+      _super._superAttrs = $.extend(true, {}, _super._superAttrs, attributes);
+    } else {
+      _super._superAttrs = attributes;
+    }
+
+    return F;
+  };
+
+  /* ---------------------------------------------------------
+   * Remove event
+   * --------------------------------------------------------- */
+
+  $.cleanData = ( function( orig ) {
+    return function( elems ) {
+      var events, elem, i;
+      for ( i = 0; ( elem = elems[ i ] ) != null; i++ ) {
+        try {
+
+          // Only trigger remove when necessary to save time
+          events = $._data( elem, "events" );
+          if ( events && events.remove ) {
+            $( elem ).triggerHandler( "remove" );
+          }
+
+        // Http://bugs.jquery.com/ticket/8235
+        } catch ( e ) {}
+      }
+      orig( elems );
+    };
+  } )( $.cleanData );
+
+  /* ---------------------------------------------------------
+   * Component Core
+   * --------------------------------------------------------- */
+
   var components = {};
   var defaults   = {};
 
-  function Base($block, attributes) {
+  function Core($block, attributes) {
     attributes    = attributes || {};
     this.$block   = $block;
     this.defaults = this.defaults || defaults;
@@ -36,7 +88,7 @@ module.exports = (function() {
     this.init();
   }
 
-  $.extend(true, Base.prototype, {
+  $.extend(true, Core.prototype, {
     init: function() {},
     remove: function() {},
 
@@ -106,7 +158,7 @@ module.exports = (function() {
   }
 
   /* ---------------------------------------------------------
-   * define
+   * Public methods
    * --------------------------------------------------------- */
 
   function define(name, parent, proto) {
@@ -116,19 +168,13 @@ module.exports = (function() {
 
     if (!proto) {
       proto  = parent;
-      parent = Base;
+      parent = Core;
     }
 
     proto._namespace = name;
 
-    // debugger
-
     return components[name] = extend(parent, proto);
   };
-
-  /* ---------------------------------------------------------
-   * vitalize
-   * --------------------------------------------------------- */
 
   function vitalize() {
     $(document).find('[data-component]:not([data-ready])').each(function() {
@@ -147,9 +193,8 @@ module.exports = (function() {
     });
   };
 
-  return {
+  return component = {
     define: define,
     vitalize: vitalize
   };
 })();
-

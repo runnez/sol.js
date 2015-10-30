@@ -1,4 +1,4 @@
-var $      = require('jquery');
+var $ = require('jquery');
 
 module.exports = function(Parent, proto) {
   var F, key, value, _super, attributes = {};
@@ -18,11 +18,13 @@ module.exports = function(Parent, proto) {
     if (typeof value === 'function') {
       F.prototype[key] = _super[key] ? (function(key, value) {
         return function() {
-          var ret;
-          this._super = _super[key];
-          ret = value.apply(this, arguments);
+          var args    = arguments;
+          this._super = function() {
+            return _super[key].apply(this, args);
+          }
+          var result  = value.apply(this, args);
           delete this._super;
-          return ret;
+          return result;
         };
       })(key, value) : value;
     } else {
@@ -31,7 +33,6 @@ module.exports = function(Parent, proto) {
   }
 
   if (_super._superAttrs) {
-    console.log($.extend({}, _super._superAttrs, attributes));
     _super._superAttrs = $.extend(true, {}, _super._superAttrs, attributes);
   } else {
     _super._superAttrs = attributes;

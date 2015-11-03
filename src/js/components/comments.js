@@ -1,4 +1,4 @@
-var Component = require('./../libs/component');
+var Component = require('./../component');
 
 module.exports = Component.define('comments', 'comments.core', {
   init: function() {

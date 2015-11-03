@@ -1,5 +1,6 @@
-Marvin           = {};
-Marvin.Component = (function() {
+var $ = require('jquery');
+
+module.exports = (function() {
 
   /* ---------------------------------------------------------
    * Extend
@@ -9,6 +10,8 @@ Marvin.Component = (function() {
     var F, key, value, _super, attributes = {};
 
     F = function() {
+      $.extend(true, this, this._superAttrs);
+
       return Parent.apply(this, arguments);
     };
 
@@ -76,15 +79,12 @@ Marvin.Component = (function() {
   var components = {};
   var defaults   = {};
 
-  function Core($block, attributes) {
-    attributes    = attributes || {};
+  function Core($block, options) {
     this.$block   = $block;
     this.defaults = this.defaults || defaults;
-    this.options  = $.extend(true, {}, this.defaults, attributes.defaults);
+    this.options  = $.extend(true, {}, this.defaults , options);
 
-    _setAttributes.call(this, attributes);
     _bindEvents.call(this);
-
     this.init();
   }
 
@@ -106,7 +106,6 @@ Marvin.Component = (function() {
   });
 
   function _setAttributes(attributes) {
-    // console.log('setAttributes', this._superAttrs);
     $.extend(true, this, this._superAttrs, attributes);
   };
 
@@ -115,23 +114,24 @@ Marvin.Component = (function() {
         events = this.events;
 
     for (var key in events) {
-      var callback = events[key];
-      var e        = _parseEvent.call(this, $block, key, callback);
-      callback     = e.callback.bind(this);
+      var _self = this;
+      var event = _parseEvent.call(this, $block, key, events[key]);
 
-      e.target.on(e.name, e.selector, callback);
+      (function(event) {
+        var callback = function() {
+          var args = Array.prototype.slice.call(arguments);
 
-      if (e.target[0] == window) {
-        var name = e.name;
+          event.callback.apply(_self, $.merge(args, [$(this)]));
+        }
 
-        var removeCallback = (function(name, callback) {
-          return function() {
-            e.target.off(name, callback);
-          }
-        }(name, callback));
+        event.target.on(event.name, event.selector, callback);
 
-        this.$block.on('remove', removeCallback);
-      }
+        if (event.target[0] == window) {
+          _self.$block.on('remove', function() {
+            event.target.off(event.name, callback);
+          });
+        }
+      })(event);
     }
 
     this.$block.on('remove', this.remove);
@@ -193,7 +193,7 @@ Marvin.Component = (function() {
     });
   };
 
-  return component = {
+  return {
     define: define,
     vitalize: vitalize
   };

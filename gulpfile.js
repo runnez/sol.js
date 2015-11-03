@@ -6,7 +6,7 @@ var plumber    = require('gulp-plumber');
 var source     = require('source');
 
 gulp.task('js', function() {
-  gulp.src('src/js/app.js')
+  gulp.src('src/js/*.js')
     .pipe(plumber({ errorHandler: console.log }))
     .pipe(browserify({
       debug: true,

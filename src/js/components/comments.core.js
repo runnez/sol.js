@@ -1,13 +1,12 @@
-var Component = require('./../libs/component');
+var Component = require('./../component');
 
 module.exports = Component.define('comments.core', {
   events: {
     'click on window': 'handlerClick',
-    'click on %btn-stop'
   },
 
-  handlerClick: function(e) {
-    console.log(e);
+  handlerClick: function() {
+    console.log(arguments);
   },
 
   init: function() {

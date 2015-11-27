@@ -67,7 +67,7 @@
     init: function() {},
 
     el: function(name) {
-      return this.$(['.js', this._namespace, name].join('-'));
+      return ['.js-', this._namespace, name[0].toUpperCase() + name.slice(1)].join('');
     },
 
     $: function(selector) {
@@ -84,10 +84,12 @@
 
       (function(event) {
         var callback = function() {
-          var args = Array.prototype.slice.call(arguments);
-
-          event.callback.apply(_self, $.merge(args, [$(this)]));
+          event.callback.apply(_self, [].concat([].slice.call(arguments), [$(this)]));
         };
+
+        if (event.selector && event.selector[0] === '%') {
+          event.selector = _self._elName(event.selector.slice(1));
+        }
 
         event.target.on(event.name, event.selector, callback);
 

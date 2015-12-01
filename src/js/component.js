@@ -54,9 +54,8 @@
   var components = {};
 
   function Core($block, options) {
-    $.extend(true, this, this._superProps);
+    $.extend(true, this, this._superProps, options);
     this.$block   = $block;
-    this.options  = $.extend(true, {}, this.defaults , options);
     _bindEvents.call(this);
     this.init();
 
@@ -117,6 +116,10 @@
     }
 
     if (typeof callback !== 'function') {
+      if (!this[callback]) {
+        throw new Error(['Method', callback, 'not defined'].join(' '))
+      }
+
       event.callback = this[callback];
     } else {
       event.callback = callback;
@@ -141,7 +144,11 @@
   }
 
   function attachComponent(name, el, options) {
-    new components[name](el, options);
+    if (components[name]) {
+      new components[name](el, options);
+    } else {
+      // throw new Error(['Component', component[name], 'not defined.'].join(' '));
+    }
   }
 
   function vitalize() {
@@ -150,11 +157,8 @@
       var attrComponents = $el.data('component').split(' ');
 
       for (var i = 0, len = attrComponents.length; i < len; i++) {
-        if (!components[attrComponents[i]]) {
-          return new Error('Component not defined.');
-        }
-
         attachComponent(attrComponents[i], $el, $el.data('options') || {});
+        console.log(attrComponents[i], $el.data('options'));
       }
 
       $el.attr('data-ready', true);

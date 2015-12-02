@@ -54,9 +54,8 @@
   var components = {};
 
   function Core($block, options) {
-    $.extend(true, this, this._superProps);
+    $.extend(true, this, this._superProps, options);
     this.$block   = $block;
-    this.options  = $.extend(true, {}, this.defaults , options);
     _bindEvents.call(this);
     this.init();
 
@@ -67,7 +66,7 @@
     init: function() {},
 
     el: function(name) {
-      return this.$(['.js', this._namespace, name].join('-'));
+      return ['.js-', this._namespace, name[0].toUpperCase() + name.slice(1)].join('');
     },
 
     $: function(selector) {
@@ -84,10 +83,12 @@
 
       (function(event) {
         var callback = function() {
-          var args = Array.prototype.slice.call(arguments);
-
-          event.callback.apply(_self, $.merge(args, [$(this)]));
+          event.callback.apply(_self, [].concat([].slice.call(arguments), [$(this)]));
         };
+
+        if (event.selector && event.selector[0] === '%') {
+          event.selector = _self._elName(event.selector.slice(1));
+        }
 
         event.target.on(event.name, event.selector, callback);
 
@@ -115,6 +116,10 @@
     }
 
     if (typeof callback !== 'function') {
+      if (!this[callback]) {
+        throw new Error(['Method', callback, 'not defined'].join(' '))
+      }
+
       event.callback = this[callback];
     } else {
       event.callback = callback;
@@ -139,7 +144,11 @@
   }
 
   function attachComponent(name, el, options) {
-    new components[name](el, options);
+    if (components[name]) {
+      new components[name](el, options);
+    } else {
+      // throw new Error(['Component', component[name], 'not defined.'].join(' '));
+    }
   }
 
   function vitalize() {
@@ -148,11 +157,8 @@
       var attrComponents = $el.data('component').split(' ');
 
       for (var i = 0, len = attrComponents.length; i < len; i++) {
-        if (!components[attrComponents[i]]) {
-          return new Error('Component not defined.');
-        }
-
         attachComponent(attrComponents[i], $el, $el.data('options') || {});
+        console.log(attrComponents[i], $el.data('options'));
       }
 
       $el.attr('data-ready', true);

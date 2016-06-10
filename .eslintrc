@@ -6,6 +6,8 @@ env:
 globals:
   $: true
   Component: true
+  require: true
+  module: true
 
 rules:
   indent: [2, 2]

@@ -11,7 +11,7 @@ gulp.task('test', function() {
   }));
 });
 
-gulp.task('js', ['test'], function() {
+gulp.task('js', function() {
   return gulp.src('src/js/*.js')
     .pipe(plumber({ errorHandler: console.log }))
     .pipe(eslint())
@@ -28,7 +28,7 @@ gulp.task('connect', function() {
 });
 
 gulp.task('watch', ['js'], function() {
-  gulp.watch(['src/js/**/*.js', 'test/*.js'], ['js']);
+  gulp.watch(['src/js/**/*.js', 'test/*.js'], ['js', 'test']);
 });
 
 gulp.task('default', ['connect', 'watch', 'test']);

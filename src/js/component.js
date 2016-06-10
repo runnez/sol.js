@@ -1,6 +1,42 @@
-(function($, window) {
+(function(factory) {
+  "use strict";
+
+  // Support commonjs and browser global
+  if (typeof exports !== 'undefined' ) {
+    module.exports = factory(require('jquery'), window);
+  } else {
+    window.Component = factory(window.$, window);
+  }
+
+}(function($, window) {
+
+  /*
+   * Add remove event to jQuery.
+   *
+   * Copy from jquery.ui
+   * Need include component after jquery ui
+   */
+
+  if ($ && !$.ui) {
+    $.cleanData = (function( orig ) {
+      return function( elems ) {
+        var events, elem, i;
+        for ( i = 0; ( elem = elems[ i ] ) != null; i++ ) {
+         // Only trigger remove when necessary to save time
+          events = $._data( elem, "events" );
+          if ( events && events.remove ) {
+            $( elem ).triggerHandler( "remove" );
+          }
+        }
+        orig( elems );
+      };
+    })($.cleanData);
+  }
+
   var extend = function(Parent, proto) {
-    var F = function () {
+    // props in _superProps
+
+    var F = function() {
       return Parent.apply(this, arguments);
     }
 
@@ -9,24 +45,29 @@
     F.prototype = Object.create(_super);
     F.prototype.constructor = Parent;
 
+    var props = {};
+
     for (var key in proto) {
       var value = proto[key];
+      if (!proto.hasOwnProperty(key)) continue;
 
-      if (typeof value !== 'function') continue;
-
-      F.prototype[key] = _super[key] ? (function(key, value) {
-        return function() {
-          this._super = function() {
-            return _super[key].apply(this, arguments);
+      if (typeof value === 'function') {
+        F.prototype[key] = _super[key] ? (function(key, value) {
+          return function() {
+            // TODO need test args
+            var args = arguments;
+            this._super = function() {
+              return _super[key].apply(this, args);
+            };
+            var result  = value.apply(this, args);
+            delete this._super;
+            return result;
           };
-          var result  = value.apply(this, arguments);
-          delete this._super;
-          return result;
-        };
-      })(key, value) : value;
+        })(key, value) : value;
+      } else {
+        props[key] = value;
+      }
     }
-
-    var props = _extractProps(proto);
 
     if (_super._superProps) {
       _super._superProps = $.extend(true, {}, _super._superProps, props);
@@ -37,27 +78,14 @@
     return F;
   };
 
-  function _extractProps(object) {
-    var props = {};
-
-    for (var key in object) {
-      var value = object[key];
-
-      if ($.isFunction(value)) continue;
-
-      props[key] = value;
-    }
-
-    return props;
-  }
-
   var components = {};
 
   function Core($block, options) {
+    console.log(this)
     $.extend(true, this, this._superProps);
     this.$block   = $block;
     this.options  = $.extend(true, {}, this.defaults , options);
-    _bindEvents.call(this);
+    this._bindEvents();
     this.init();
 
     return this;
@@ -66,62 +94,76 @@
   Core.prototype = {
     init: function() {},
 
-    el: function(name) {
-      return this.$(['.js', this._namespace, name].join('-'));
+    trigger: function(event, data) {
+      return this.$block.trigger(event, data);
     },
 
-    $: function(selector) {
-      return this.$block.find(selector);
+    dispatch: function(event, data) {
+      return this.$block.parents('[data-component]').triggerHandler(event, data);
+    },
+
+    broadcast: function(event, data) {
+      return this.$block.find('[data-component]').triggerHandler(event, data);
+    },
+
+    $: function(selector, $context) {
+      return ($context || this.$block).find(_replaceShortcuts.call(this, selector));
+    },
+
+    _elName: function(name) {
+      return ['.js-', this._namespace, name[0].toUpperCase() + name.slice(1)].join('');
+    },
+
+    _componentName: function(name) {
+      return '[data-component~="' + name + '"]';
+    },
+
+    _bindEvents: function() {
+      var $block = this.$block, events = this.events;
+
+      for (var key in events) {
+        var _self = this;
+        var event = this._parseEvent.call(this, $block, key, events[key]);
+
+        (function(event) {
+          var callback = function() {
+            event.callback.apply(_self, [].concat([].slice.call(arguments), [$(this)]));
+          };
+
+          event.target.on(event.name, event.selector, callback);
+
+          if (event.target[0] == window || event.target[0] == document) {
+            _self.$block.on('remove', function() {
+              event.target.off(event.name, callback);
+            });
+          }
+        })(event);
+      }
+
+      this.$block.on('remove', this.remove);
+    },
+
+    _parseEvent: function($block, key, callback) {
+      var event;
+      key = key.split(' on ');
+
+      if (key[1] && key[1] == 'window') {
+        event = { target: $(window), selector: null, name: key[0] };
+      } else if (key.length) {
+        event = { target: $block, selector: key[1], name: key[0] };
+      } else {
+        event = { target: $block, selector: null, name: key };
+      }
+
+      if (typeof callback !== 'function') {
+        event.callback = this[callback];
+      } else {
+        event.callback = callback;
+      }
+
+      return event;
     }
   };
-
-  function _bindEvents() {
-    var $block = this.$block, events = this.events;
-
-    for (var key in events) {
-      var _self = this;
-      var event = _parseEvent.call(this, $block, key, events[key]);
-
-      (function(event) {
-        var callback = function() {
-          var args = Array.prototype.slice.call(arguments);
-
-          event.callback.apply(_self, $.merge(args, [$(this)]));
-        };
-
-        event.target.on(event.name, event.selector, callback);
-
-        if (event.target[0] == window) {
-          _self.$block.on('remove', function() {
-            event.target.off(event.name, callback);
-          });
-        }
-      })(event);
-    }
-
-    this.$block.on('remove', this.remove);
-  }
-
-  function _parseEvent($block, key, callback) {
-    var event;
-    key = key.split(' on ');
-
-    if (key[1] && key[1] == 'window') {
-      event = { target: $(window), selector: null, name: key[0] };
-    } else if (key.length) {
-      event = { target: $block, selector: key[1], name: key[0] };
-    } else {
-      event = { target: $block, selector: null, name: key };
-    }
-
-    if (typeof callback !== 'function') {
-      event.callback = this[callback];
-    } else {
-      event.callback = callback;
-    }
-
-    return event;
-  }
 
   function define(name, parent, proto) {
     if (parent && proto) {
@@ -133,7 +175,7 @@
       parent = Core;
     }
 
-    proto._namespace = name;
+    proto.componentName = name;
 
     return components[name] = extend(parent, proto);
   }
@@ -159,9 +201,25 @@
     });
   }
 
-  window.Component = {
+  return {
     define: define,
-    vitalize: vitalize
-  };
+    vitalize: vitalize,
+    config: {
+    }
+  }
 
-})($, window);
+}))
+
+// componentSelector [data-component]
+// componentReadySelector [data-ready]
+
+// vitalizer
+
+// hooks
+
+// bindEvents
+// watch
+
+// can modify base proto
+// can hook in base constructor
+

@@ -5,16 +5,11 @@ var assert = require('assert');
 window = doc.defaultView;
 document = window.document;
 
-$ = jQuery = require('jquery');
-
-global.location = { href: '' };
+$ = require('jquery');
 
 $('body').html('<div id="fixtures"></div>');
 
-require('../src/js/component.js');
-require('../src/js/jquery.cleanData.js');
-
-Component = window.Component;
+var Component = require('../src/js/component.js');
 
 var fixtures = null;
 
@@ -38,7 +33,6 @@ describe('Component', function() {
       assert.equal(typeof (new Test($('body'))), 'object');
     });
   });
-
 
   describe('vitalize', function() {
     it('should protect multiple vitalize', function() {
@@ -114,7 +108,6 @@ describe('Component', function() {
         }
       });
 
-
       body('<div data-component="powerTest"></div>');
 
       Component.vitalize();
@@ -184,6 +177,8 @@ describe('Component', function() {
     it('listens window events', function() {
       var fire = 0;
 
+      console.log('fire', fire);
+
       Component.define('test', {
         events: {
           'click on window': 'handler'
@@ -191,6 +186,7 @@ describe('Component', function() {
 
         handler: function(e) {
           fire = 1;
+          console.log('fire 11111', fire);
         }
       });
 
@@ -198,6 +194,7 @@ describe('Component', function() {
 
       $(window).trigger('click');
 
+      console.log('fire res', fire);
       assert.equal(fire, 1);
     });
 

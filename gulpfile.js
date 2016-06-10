@@ -1,6 +1,5 @@
 var gulp       = require('gulp');
 var connect    = require('gulp-connect');
-var slim       = require('gulp-slim');
 var plumber    = require('gulp-plumber');
 var eslint = require('gulp-eslint');
 var mocha = require('gulp-mocha');

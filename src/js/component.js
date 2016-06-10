@@ -78,14 +78,29 @@
     return F;
   };
 
-  var components = {};
+  var Registry = {
+    components: {},
+    mixins: {}
+  }
 
   function Core($block, options) {
-    console.log(this)
-    $.extend(true, this, this._superProps);
-    this.$block   = $block;
-    this.options  = $.extend(true, {}, this.defaults , options);
-    this._bindEvents();
+    $.extend(true, this, this._superProps, options);
+
+    this.$block = $block;
+
+    if (typeof this.prevent == 'function' && this.prevent()) {
+      console.warn('Component %s is prevented.', this._namespace);
+      return;
+    }
+
+    _bindEvents.call(this);
+
+    _initWatch.call(this);
+
+    this.mixins && this.mixins.forEach(function(mixin) {
+      mixin.init && mixin.init.call(this);
+    }, this);
+
     this.init();
 
     return this;
@@ -93,6 +108,14 @@
 
   Core.prototype = {
     init: function() {},
+
+    _elName: function(name) {
+      return ['.js-', this._namespace, name[0].toUpperCase() + name.slice(1)].join('');
+    },
+
+    _componentName: function(name) {
+      return '[data-component~="' + name + '"]';
+    },
 
     trigger: function(event, data) {
       return this.$block.trigger(event, data);
@@ -108,66 +131,104 @@
 
     $: function(selector, $context) {
       return ($context || this.$block).find(_replaceShortcuts.call(this, selector));
-    },
-
-    _elName: function(name) {
-      return ['.js-', this._namespace, name[0].toUpperCase() + name.slice(1)].join('');
-    },
-
-    _componentName: function(name) {
-      return '[data-component~="' + name + '"]';
-    },
-
-    _bindEvents: function() {
-      var $block = this.$block, events = this.events;
-
-      for (var key in events) {
-        var _self = this;
-        var event = this._parseEvent.call(this, $block, key, events[key]);
-
-        (function(event) {
-          var callback = function() {
-            event.callback.apply(_self, [].concat([].slice.call(arguments), [$(this)]));
-          };
-
-          event.target.on(event.name, event.selector, callback);
-
-          if (event.target[0] == window || event.target[0] == document) {
-            _self.$block.on('remove', function() {
-              event.target.off(event.name, callback);
-            });
-          }
-        })(event);
-      }
-
-      this.$block.on('remove', this.remove);
-    },
-
-    _parseEvent: function($block, key, callback) {
-      var event;
-      key = key.split(' on ');
-
-      if (key[1] && key[1] == 'window') {
-        event = { target: $(window), selector: null, name: key[0] };
-      } else if (key.length) {
-        event = { target: $block, selector: key[1], name: key[0] };
-      } else {
-        event = { target: $block, selector: null, name: key };
-      }
-
-      if (typeof callback !== 'function') {
-        event.callback = this[callback];
-      } else {
-        event.callback = callback;
-      }
-
-      return event;
     }
   };
 
+  function _initWatch() {
+    var _self = this;
+    var props = {};
+
+    for (var name in _self.watch) {
+      var callback = _parseCallbackName.call(_self, _self.watch[name]);
+      props[name]  = _self[name];
+
+      (function(name, callback) {
+        Object.defineProperty(_self, name, {
+          set: function(newValue) {
+            props[name] = newValue;
+            callback.call(_self, newValue);
+          },
+          get: function() {
+            return props[name];
+          }
+        });
+      })(name, callback);
+    }
+  };
+
+  function _bindEvents() {
+    var $block = this.$block, events = this.events;
+
+    for (var key in events) {
+      var _self = this;
+      var event = _parseEvent.call(this, $block, key, events[key]);
+
+      (function(event) {
+        var callback = function() {
+          event.callback.apply(_self, [].concat([].slice.call(arguments), [$(this)]));
+        };
+
+        event.target.on(event.name, event.selector, callback);
+
+        if (event.target[0] == window || event.target[0] == document) {
+          _self.$block.on('remove', function() {
+            event.target.off(event.name, callback);
+          });
+        }
+      })(event);
+    }
+
+    this.$block.on('remove', this.remove);
+  }
+
+  function _replaceShortcuts(selector) {
+    return selector ? selector
+      .replace(/%%([\w\d-]+)/g, function(match, name) {
+        return this._componentName(name);
+      }.bind(this))
+      .replace(/%([\w\d-]+)/g, function(match, name) {
+        return this._elName(name);
+      }.bind(this)) : null;
+  }
+
+  function _parseEvent($block, key, callback) {
+    var event;
+    key = key.split(' on ');
+
+    if (key[1] && (key[1] == 'window' || key[1] == 'document')) {
+      var target = key[1] == 'window' ? window : document;
+      event = { target: $(target), selector: null, name: key[0] };
+    } else if (key.length) {
+      event = { target: $block, selector: key[1], name: key[0] };
+    } else {
+      event = { target: $block, selector: null, name: key };
+    }
+
+    event.selector = _replaceShortcuts.call(this, event.selector);
+    event.callback = _parseCallbackName.call(this, callback);
+
+    return event;
+  }
+
+  function _parseCallbackName(callback) {
+    if (typeof callback !== 'function') {
+      if (!this[callback]) {
+        throw new Error(['Method', callback, 'not defined'].join(' '))
+      }
+
+      return this[callback];
+    } else {
+      return callback;
+    }
+  }
+
+  function mixin(name, proto) {
+    return Registry.mixins[name] = proto;
+  }
+
   function define(name, parent, proto) {
     if (parent && proto) {
-      parent = components[parent];
+      parent = Registry.components[parent];
     }
 
     if (!proto) {
@@ -175,37 +236,55 @@
       parent = Core;
     }
 
-    proto.componentName = name;
+    proto._namespace = name;
 
-    return components[name] = extend(parent, proto);
+    if (proto.mixins) {
+      proto.mixins = proto.mixins.map(function(name) { return Registry.mixins[name] });
+
+      proto = proto.mixins.concat([proto]).reduce(function(proto, mixin) {
+        mixin.init = mixin.init || function() {};
+
+        return $.extend(true, proto, mixin);
+      }, {});
+    }
+
+    return Registry.components[name] = extend(parent, proto);
   }
 
-  function attachComponent(name, el, options) {
-    new components[name](el, options);
+  function attach(name, el, options) {
+    if (component = Registry.components[name]) {
+      console.log('Component %s is inited with options %O', name, options);
+      return new component(el, options);
+    } else {
+      throw new Error(['Component', name, 'is not defined.'].join(' '));
+    }
   }
 
-  function vitalize() {
-    $(document).find('[data-component]:not([data-ready])').each(function() {
-      var $el = $(this);
-      var attrComponents = $el.data('component').split(' ');
+  function vitalize(target) {
+    var $target  = $(target || document);
+    var selector = '[data-component]:not([data-component-ready])'
 
-      for (var i = 0, len = attrComponents.length; i < len; i++) {
-        if (!components[attrComponents[i]]) {
-          return new Error('Component not defined.');
-        }
+    $target
+      .filter(selector)
+      .add($target.find(selector))
+      .each(function() {
+        var $el        = $(this).attr('data-component-ready', true);
+        var options    = $el.data('options') || {};
+        var components = $el.data('component');
 
-        attachComponent(attrComponents[i], $el, $el.data('options') || {});
-      }
+        components && components.split(' ').forEach(function(component) {
+          attach(component, $el, options);
+        });
+      });
 
-      $el.attr('data-ready', true);
-    });
+    $target.trigger('vitalized')
   }
 
   return {
     define: define,
     vitalize: vitalize,
-    config: {
-    }
+    attach: attach,
+    mixin: mixin
   }
 
 }))

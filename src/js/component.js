@@ -252,7 +252,9 @@
   }
 
   function attach(name, el, options) {
-    if (component = Registry.components[name]) {
+    var component = Registry.components[name];
+
+    if (component) {
       console.log('Component %s is inited with options %O', name, options);
       return new component(el, options);
     } else {

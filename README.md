@@ -1,4 +1,4 @@
-![alt tag](https://cdn.rawgit.com/runnez/sol.js/v0.2/logo1.png)
+![alt tag](https://cdn.rawgit.com/runnez/sol.js/v0.2/logo.png)
 
 [![Build Status](https://travis-ci.org/runnez/sol.js.svg)](https://travis-ci.org/runnez/component) [![Code Climate](https://codeclimate.com/github/runnez/component/badges/gpa.svg)](https://codeclimate.com/github/runnez/component)
 

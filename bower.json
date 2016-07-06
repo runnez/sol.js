@@ -1,0 +1,31 @@
+{
+  "name": "Sol.js",
+  "version": "1.0",
+  "homepage": "htthttps://github.com/runnez/sol.js",
+  "authors": [
+    "runnez <runnez@yandex.ru>"
+  ],
+  "description": "micro framework for making easy-readable jQuery components",
+  "main": "src/sol.js",
+  "moduleType": [
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "components",
+    "widgets",
+    "class",
+    "klass",
+    "inherit"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "app/bower_components",
+    "test",
+    "tests",
+    "logo.png"
+  ]
+}

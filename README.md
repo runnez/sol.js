@@ -186,6 +186,18 @@ Or insert a hook in component initialization
     })
   })
 ```
+### Install
+
+```
+  bower install sol.js
+```
+
+Or add file to your project
+
+```
+src/sol.js
+```
+
 
 
 

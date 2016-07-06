@@ -5,22 +5,17 @@ var assert = require('assert');
 window = doc.defaultView;
 document = window.document;
 
-$ = jQuery = require('jquery');
-
-global.location = { href: '' };
+$ = require('jquery');
 
 $('body').html('<div id="fixtures"></div>');
 
-require('../src/js/component.js');
-require('../src/js/jquery.cleanData.js');
-
-Component = window.Component;
+var Sol = require('../src/sol.js');
 
 var fixtures = null;
 
 var body = function(html) {
   fixtures.html(html);
-  Component.vitalize();
+  Sol.vitalize();
 }
 
 describe('Component', function() {
@@ -34,24 +29,23 @@ describe('Component', function() {
 
   describe('define', function() {
     it('should define', function() {
-      var Test = Component.define('test', {});
+      var Test = Sol.component('test', {});
       assert.equal(typeof (new Test($('body'))), 'object');
     });
   });
-
 
   describe('vitalize', function() {
     it('should protect multiple vitalize', function() {
       var inited = 0;
 
-      Component.define('test', {
+      Sol.component('test', {
         init: function() {
           inited++;
         }
       });
 
-      Component.vitalize();
-      Component.vitalize();
+      Sol.vitalize();
+      Sol.vitalize();
 
       body('<div data-component="test"></div>');
 
@@ -61,13 +55,13 @@ describe('Component', function() {
     it('works with multiple blocks on same node', function() {
       var inited = 0;
 
-      Component.define('test', {
+      Sol.component('test', {
         init: function() {
           inited++;
         }
       });
 
-      Component.define('test2', {
+      Sol.component('test2', {
         init: function() {
           inited++;
         }
@@ -75,7 +69,7 @@ describe('Component', function() {
 
       body('<div data-component="test test2"></div>');
 
-      Component.vitalize();
+      Sol.vitalize();
 
       assert.equal(inited, 2);
     });
@@ -85,7 +79,7 @@ describe('Component', function() {
     it('init fire after vitalize', function() {
       var inited = 0;
 
-      Component.define('test', {
+      Sol.component('test', {
         init: function() {
           inited = 1;
         }
@@ -93,7 +87,7 @@ describe('Component', function() {
 
       body('<div data-component="test"></div>');
 
-      Component.vitalize();
+      Sol.vitalize();
 
       assert.equal(inited, 1);
     });
@@ -101,37 +95,86 @@ describe('Component', function() {
     it('_super call parent method', function() {
       var fire = 0;
 
-      Component.define('test', {
+      Sol.component('test', {
         init: function() {
           fire--;
         }
       });
 
-      Component.define('powerTest', 'test', {
+      Sol.component('powerTest', 'test', {
         init: function() {
           this._super();
           fire++;
         }
       });
 
+      body('<div data-component="powerTest"></div>');
+
+      Sol.vitalize();
+
+      assert.equal(fire, 0);
+    });
+
+    it('super accept arguments', function() {
+      var fire = 0;
+
+      Sol.component('test', {
+        init: function(val) {
+          fire = val;
+        }
+      });
+
+      Sol.component('powerTest', 'test', {
+        init: function() {
+          this._super(5);
+        }
+      });
 
       body('<div data-component="powerTest"></div>');
 
-      Component.vitalize();
+      Sol.vitalize();
 
-      assert.equal(fire, 0);
+      assert.equal(fire, 5);
+    });
+
+    it('super accept arguments from events binding', function() {
+      var event, element;
+
+      Sol.component('test', {
+        events: {
+          click: 'fires'
+        },
+
+        fires: function(e, $el) {
+          event = e;
+          element = $el;
+        }
+      });
+
+      Sol.component('powerTest', 'test', {
+        fires: function(e, el) {
+          this._super(e, el)
+        }
+      });
+
+      body('<div data-component="powerTest"></div>');
+
+      Sol.vitalize();
+
+      $('[data-component="powerTest"]').trigger('click');
+      assert.equal(event instanceof $.Event && element instanceof $, true);
     });
   });
 
   describe('props', function() {
     it('should define props', function() {
-      var Test = Component.define('test', { a: 1 });
+      var Test = Sol.component('test', { a: 1 });
       assert.equal(new Test($('body')).a, 1);
     });
 
     it('should override inherit props', function() {
-      var Test = Component.define('test', { a: 1, b: 2 });
-      var PowerTest = Component.define('powerTest', 'test', {
+      var Test = Sol.component('test', { a: 1, b: 2 });
+      var PowerTest = Sol.component('powerTest', 'test', {
         b: 3
       });
 
@@ -139,20 +182,46 @@ describe('Component', function() {
     });
 
     it('should dont override parent props', function() {
-      var Test = Component.define('test', { a: 1, b: 2 });
-      var PowerTest = Component.define('powerTest', 'test', {
+      var Test = Sol.component('test', { a: 1, b: 2 });
+      var PowerTest = Sol.component('powerTest', 'test', {
         b: 3
       });
 
       assert.equal(new PowerTest($('body')).a, 1);
     });
 
+    it('should isolate object props with multiple instance', function() {
+      var b = 0;
+
+      Sol.component('test', {
+        events: {
+          click: 'increment'
+        },
+
+        b: {
+          c: 0
+        },
+
+        increment: function() {
+          this.b.c++;
+          b = this.b.c
+        }
+      });
+
+      body('<div id="a" data-component="test"></div><div id="b" data-component="test"></div>');
+
+      $('#a').click()
+      $('#b').click()
+
+      assert.equal(b, 1);
+    });
+
     it('should dont override parent object props', function() {
-      var Test = Component.define('test', { a: 1, b: {
+      var Test = Sol.component('test', { a: 1, b: {
         d: 1
       }});
 
-      var PowerTest = Component.define('powerTest', 'test', { b: {
+      var PowerTest = Sol.component('powerTest', 'test', { b: {
         f: 1
       }});
 
@@ -164,7 +233,7 @@ describe('Component', function() {
     it('should bind events', function() {
       var fire = 0;
 
-      Component.define('test', {
+      Sol.component('test', {
         events: {
           'click': 'handler'
         },
@@ -184,7 +253,7 @@ describe('Component', function() {
     it('listens window events', function() {
       var fire = 0;
 
-      Component.define('test', {
+      Sol.component('test', {
         events: {
           'click on window': 'handler'
         },
@@ -204,7 +273,7 @@ describe('Component', function() {
     it('off window handlers after remove', function() {
       var fire = 0;
 
-      Component.define('test', {
+      Sol.component('test', {
         events: {
           'click on window': 'handler',
           'resize on window': 'handler'
@@ -228,7 +297,7 @@ describe('Component', function() {
     it('should inherit events', function() {
       var fire = 0;
 
-      Component.define('test', {
+      Sol.component('test', {
         events: {
           'click': 'handler'
         },
@@ -238,7 +307,7 @@ describe('Component', function() {
         }
       });
 
-      Component.define('powerTest', 'test', {
+      Sol.component('powerTest', 'test', {
         events: {
           'fire': 'handler'
         }

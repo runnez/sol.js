@@ -1,4 +1,6 @@
-# Sol.js [![Build Status](https://travis-ci.org/runnez/sol.js.svg)](https://travis-ci.org/runnez/component) [![Code Climate](https://codeclimate.com/github/runnez/component/badges/gpa.svg)](https://codeclimate.com/github/runnez/component)
+![alt tag](https://cdn.rawgit.com/runnez/sol.js/v0.2/logo1.png)
+
+[![Build Status](https://travis-ci.org/runnez/sol.js.svg)](https://travis-ci.org/runnez/component) [![Code Climate](https://codeclimate.com/github/runnez/component/badges/gpa.svg)](https://codeclimate.com/github/runnez/component)
 
 Tired of spaghetti in your jQuery code?
 Meet Sol.js - micro framework for making easy-readable jQuery components.

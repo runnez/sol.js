@@ -152,8 +152,8 @@ describe('Component', function() {
       });
 
       Sol.component('powerTest', 'test', {
-        fires: function(e, el) {
-          this._super(e, el)
+        fires: function(e, $el) {
+          this._super(e, $el)
         }
       });
 

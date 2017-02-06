@@ -8,14 +8,14 @@ gulp.task('test', function() {
 });
 
 gulp.task('js', function() {
-  return gulp.src('src/*.js')
+  return gulp.src('lib/*.js')
     .pipe(plumber({ errorHandler: console.log }))
     .pipe(eslint())
     .pipe(eslint.formatEach('compact', process.stderr))
 });
 
 gulp.task('watch', ['js'], function() {
-  gulp.watch(['src/*.js', 'test/*.js'], ['js', 'test']);
+  gulp.watch(['lib/*.js', 'test/*.js'], ['js', 'test']);
 });
 
 gulp.task('default', ['watch', 'test']);

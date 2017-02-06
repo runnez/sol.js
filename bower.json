@@ -6,7 +6,7 @@
     "runnez <runnez@yandex.ru>"
   ],
   "description": "micro framework for making easy-readable jQuery components",
-  "main": "src/sol.js",
+  "main": "lib/sol.js",
   "moduleType": [
     "globals",
     "node"

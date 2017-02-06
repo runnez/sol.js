@@ -195,7 +195,7 @@ Or insert a hook in component initialization
 Or add file to your project
 
 ```
-src/sol.js
+lib/sol.js
 ```
 
 

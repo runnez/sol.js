@@ -9,7 +9,7 @@ $ = require('jquery');
 
 $('body').html('<div id="fixtures"></div>');
 
-var Sol = require('../src/sol.js');
+var Sol = require('../lib/sol.js');
 
 var fixtures = null;
 

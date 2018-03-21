@@ -21,7 +21,6 @@
     "gulp-eslint": "^1.1.0",
     "gulp-mocha": "^2.2.0",
     "gulp-plumber": "^1.0.1",
-    "jquery": "^2.1.4",
     "jquery-browserify": "*",
     "jsdom": "^7.0.2",
     "should": "^7.1.1"
